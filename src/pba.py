@@ -14,66 +14,66 @@ Default units:
 '''
 
 '''
-helper func - string merge
-'''
-def fix_attr(name,value):
-    return str(name) + '="' + str(value) + '" '
-'''
-helper func - stadium.sdf for simulation environment
-'''
-def getDefaultSDF():
-    import sys
-    return sys.prefix + "\\Lib\\site-packages\\pybullet_data\\stadium.sdf"
-
-'''
 Main class for pybullet API - contains all the interface between client side and pybullet.
 '''
 class Robot_Module:
+    # internal parameter for indentation lines in the final XML file
     _spaces = 0
+    # internal list for the motor objects in the module
     _motor_names = []
+    # defualt joint type for all the joints
     _default_joint_type = "hinge"
 
     def __init__(self):
         self.WB = _WorldBody("WB")
-        self.names = []
+        # list that contains all the names of the bodies in the robot module
+        self.names = [] 
+        # object id in the pybullet world
         self.robot = ""
+        # Dictionary that map between joint name to joint index in the pybullet world 
         self.jdict = {}
+        # Current frame. In each makeStep call, frame value will be increased by 1
         self.frame = 0
+        # The start time after makeWorld step
         self.startTime = None
+        # Save the start position of the robot
         self.startPosition = None
+        # Parameter that indicates if the build step is finished
         self.finishBuild = False
+        # Holds the last body that was added
         self.lastBody = self.WB
+        # Dictionary that holds all the joints names that didn't reach their target angle
         self.jointSteps = {}
+        # Dictionary that holds the joints range
         self.jRanges = {}
+        # Dicrinary that holds the joints max velocity
         self.jMaxVelocity = {}
 
     '''
     Iterates over all the created objects (bodies, geoms and joints) and returns the object
     with name equals the input if exists - otherwise returns None.
     '''
-    def findByName(self,objs,name):
+    def _findByName(self, objs, name):
         if objs is None:
             return None
 
         for obj in objs:
             if obj.name == name:
                 return obj
-            ret_val = self.findByName(obj.children,name)
+            ret_val = self._findByName(obj.children,name)
             if ret_val is not None:
                 return ret_val
 
         return None
-
     '''
     Returns the current frame (frame = how many steps were made in the simulation)
     '''
     def getFrame(self):
         return self.frame
-
     '''
     Adds object of type 'body' to the xml
     '''
-    def addBody(self,name,pos,parent=-1):
+    def addBody(self, name, pos, parent=-1):
         if not Utils.dimensionAmount(pos, 3):
             print ("Position dimesntion is not 3")
             return False
@@ -86,7 +86,7 @@ class Robot_Module:
     '''
     Adds object of type 'joint' to the xml
     '''
-    def addJoint(self,name,max_velocity,axis,joint_range,gear,parent=-1):
+    def addJoint(self, name, max_velocity, axis, joint_range, gear, parent=-1):
         hasError = False
         if not Utils.dimensionAmount(max_velocity, 1):
             print (name + "- Max velocity dimension is not 1")
@@ -113,11 +113,10 @@ class Robot_Module:
             self.jMaxVelocity[name] = max_velocity
             return True
         return False
-
     '''
     Adds object of type 'geom' to the xml
     '''
-    def addGeom(self,name,fromto,size,geom_type,parent=-1):
+    def addGeom(self, name, fromto, size, geom_type, parent=-1):
         hasError = False
         geom_type = str(geom_type).lower()
         if not geom_type in Utils.geomTypes():
@@ -137,7 +136,6 @@ class Robot_Module:
             self._addComponent(tmp,parent)
             return True
         return False
-
     '''
     Starts the pybullet physics run - creates the XML and loads it.
     '''
@@ -146,7 +144,7 @@ class Robot_Module:
             print ("Filepath is required")
             return
         if sdfPath is None:
-            sdfPath = getDefaultSDF()
+            sdfPath = Utils.getDefaultSDF()
         if len(gravity) != 3:
             print ("Gravity must be 3 dimension")
             return
@@ -189,8 +187,6 @@ class Robot_Module:
         self.startTime = time.time()
         self.jointSteps = {}
         self.startPosition, (qx, qy, qz, qw) = p.getBasePositionAndOrientation(self.robot)
-        print (self.startPosition)
-    
     '''
     Adds the action of: 
         Move joint named @name@ by the angle @target_angle@ with the velocity @angular_velocity@
@@ -218,7 +214,6 @@ class Robot_Module:
                                 targetPosition=math.radians(target_angle),
                                 maxVelocity=angular_velocity
                                 )
-
     '''
     Runs the simulation by a single step (preforms the actions added to the simulation
     action list. Important note: many times a single step isn't enough to generate the entire
@@ -246,69 +241,67 @@ class Robot_Module:
             robotPos, robotOrn = p.getBasePositionAndOrientation(self.robot)
             p.resetDebugVisualizerCamera(cameraDistance ,cameraYaw , cameraPitch, robotPos)
         return self.jointSteps
-
+    '''
+    the function returns the position value of the given joint
+    '''
     def getJoinState(self, name):
         if not name in self.jdict:
             print ("Name is not valid")
             return
         jointState = p.getJointState(self.robot, self.jdict[name])
         return jointState[0]
-
     '''
     getPositionAndOrientation returns the position list of 3 floats and orientation as list of 4 
     floats in [x,y,z,w] order. Use getEulerFromQuaternion to convert the quaternion to Euler if needed.
     '''
     def getPositionAndOrientation(self):
         return p.getBasePositionAndOrientation(self.robot)
-    
     '''
     getEulerFromQuaternion returns alist of 3 floating point values, a vec3.
     '''
     def getEulerFromQuaternion(self, orientation):
         return p.getEulerFromQuaternion(orientation)
-    
     '''
     Ends the simulation run - prints the number of frames occured and FPS
     '''
     def stopRun(self):
         t2 = time.time()
-        # print("############################### distance = %0.2f meters" % dummy.distance)
-        print("############################### FPS = ", 1000/ (t2 - self.startTime))
-        print("ended benchmark")
-        print("Frame amount = " + str(self.frame))
-
+        print ("FPS = ", 1000/ (t2 - self.startTime))
+        print ("Total time in seconds: " + str((t2 - self.startTime).total_seconds()))
+        print ("Frame amount = " + str(self.frame))
     '''
     Prints the XML structure.
     '''
     def prettyPrint(self, filePath = None):
         self.WB.prettyPrint(filePath)
 
+    # Private functions - for internal use only.
     '''
-    Private functions - for internal use only.
+    the function check if the given name already in use
     '''
-    def _verifyName(self,name):
+    def _verifyName(self, name):
         if name in self.names:
             print("Name " + name + " already exists - created only the first one requested")
             return False
         self.names.append(name)
         return True
-
     @staticmethod
     def _addSpace():
         Robot_Module._spaces = Robot_Module._spaces + 4
-
     @staticmethod
     def _removeSpace():
         Robot_Module._spaces = Robot_Module._spaces - 4
-
-    def _addComponent(self,obj,parent):
+    '''
+    the function add new component (body/joint/geom) the the given parent
+    '''
+    def _addComponent(self, obj, parent):
         if self.finishBuild:
             print ("Can't add new componenets after start")
             return
         if parent == -1:
             self.lastBody.children.append(obj)
         else:
-            point = self.findByName(self.WB.children,parent)
+            point = self._findByName(self.WB.children,parent)
             if point is None:
                 print("No parent is found")
                 return
@@ -318,12 +311,20 @@ class Robot_Module:
 WorldBody class - main body of the robot. Handles the XML creation.
 '''
 class _WorldBody:
-    def __init__(self,name,time_step = 0.01):
+    def __init__(self, name, time_step = 0.01):
+        # The main name of the module
         self.name = name
+        # type of object
         self.type = "WB"
+        # list of children
         self.children = []
+        # time step
         self.timestep = time_step
 
+    '''
+    the function print the current object data to a given file 
+    or in case of filePath=None to the screen
+    '''
     def prettyPrint(self, filePath):
         if filePath is None:
             self.fileName = None
@@ -348,7 +349,9 @@ class _WorldBody:
 
         if filePath is not None:
             self.fileName.close()
-
+    '''
+    the actual write to the file / print
+    '''
     def printToFile(self, fileName, msg):
         for _ in range(Robot_Module._spaces):
             msg = " " + msg
@@ -358,10 +361,10 @@ class _WorldBody:
         else:
             fileName.write(msg + "\n")
 
+    # Private functions - for internal use only.
     '''
-    Private functions - for internal use only.
+    This function add the defualt data to the xml file
     '''
-
     def _printConstFile(self, xml):
         self.printToFile(xml, '<mujoco model="' + self.name + '">')
         Robot_Module._addSpace()
@@ -375,7 +378,9 @@ class _WorldBody:
         self.printToFile(xml, '<geom friction="1 0.5 0.5" />')
         Robot_Module._removeSpace()
         self.printToFile(xml, '</default>')
-        
+    '''
+    This function write the actuator data to the xml file
+    '''
     def _printAct(self,fileName):
         if self.children is None:
             return
@@ -390,14 +395,20 @@ class _WorldBody:
 Body class - all objects named "Body" in the XML are created here.
 '''
 class _Body(_WorldBody):
-    def __init__(self,name,pos,parent):
+    def __init__(self, name, pos, parent):
         _WorldBody.__init__(self ,name)
+        # Default position of the body
         self.pos = pos
+        # the parent of the new body
         self.parent = parent
+        # the type of the object
         self.type = "Body"
     
+    '''
+    Same sa in WorldBody
+    '''
     def prettyPrint(self, fileName):
-        self.printToFile(fileName, '<body ' + fix_attr("name",self.name) + fix_attr("pos",self.pos) + '>')
+        self.printToFile(fileName, '<body ' + Utils.fix_attr("name",self.name) + Utils.fix_attr("pos",self.pos) + '>')
         Robot_Module._addSpace()
         for c in self.children:
             c.prettyPrint(fileName)
@@ -410,19 +421,30 @@ Joint class - all objects named "Joint" in the XML are created here.
 class _Joint(_WorldBody):
     def __init__(self,name,max_velocity,axis,joint_range,joint_type,gear,parent):
         _WorldBody.__init__(self,name)
+        # Joint max velocity
         self.max_velocity = max_velocity
+        # Joint parent
         self.parent = parent
+        # Joint axis - e.g. "1 1 0"
         self.axis = axis
+        # Joint range
         self.joint_range = joint_range
+        # Joint type - alawys will be 'hinge'
         self.joint_type = joint_type
+        # Joint gear
         self.gear = gear
+        # Object type
         self.type = "Joint"
+        # Joint position
         self.pos = "0 0 0"
 
+    '''
+    Look at WorldBody documentation
+    '''
     def prettyPrint(self, fileName):
-        self.printToFile(fileName, '<joint ' + fix_attr("name",self.name)
-             + fix_attr("axis",self.axis) + fix_attr("pos",self.pos) + fix_attr("range",self.joint_range)
-             + fix_attr("type",self.joint_type) + '>')
+        self.printToFile(fileName, '<joint ' + Utils.fix_attr("name",self.name)
+             + Utils.fix_attr("axis",self.axis) + Utils.fix_attr("pos",self.pos) + Utils.fix_attr("range",self.joint_range)
+             + Utils.fix_attr("type",self.joint_type) + '>')
         Robot_Module._addSpace()
         for c in self.children:
             c.prettyPrint(fileName)
@@ -435,15 +457,23 @@ Geom class - all objects named "Geom" in the XML are created here.
 class _Geom(_WorldBody):
     def __init__(self,name,fromto,size,geom_type,parent):
         _WorldBody.__init__(self,name)
+        # Geom fromTo data - can be 3 or 6 coordinates depends on the geom_type
         self.fromto = fromto
+        # Geom size
         self.size = size
+        # Geom type
         self.geom_type = geom_type
+        # Geom parent name
         self.parent = parent
+        # Type of object
         self.type = "Geom"
     
+    '''
+    Look at WorldBody
+    '''
     def prettyPrint(self, fileName):
-        self.printToFile(fileName, '<geom ' + fix_attr("name", self.name) + fix_attr("fromto",self.fromto)
-                + fix_attr("type",self.geom_type) + fix_attr("size",self.size) + '>')
+        self.printToFile(fileName, '<geom ' + Utils.fix_attr("name", self.name) + Utils.fix_attr("fromto",self.fromto)
+                + Utils.fix_attr("type",self.geom_type) + Utils.fix_attr("size",self.size) + '>')
         Robot_Module._addSpace()
         for c in self.children:
             c.prettyPrint(fileName)
@@ -451,28 +481,44 @@ class _Geom(_WorldBody):
         self.printToFile(fileName, '</geom>')
 
 class Utils:
-    # Todo - ignore case senstive
+    # All the supported geom types and thier fromto dimension
     geom_type_dic = { "capsule":6, "box":3, "sphere": 3, "cylinder": 6 }
+
+    '''
+    The function return True if the given text is empty or Null, otherwise it returns False
+    '''
     @staticmethod
     def stringIsNullOrEmpty(text):
         return text is None or text == ""
+    '''
+    The function return True if the split array with blankspace length equals to amount
+    '''
     @staticmethod
     def dimensionAmount(text, amount):
         if Utils.stringIsNullOrEmpty(text):
             return False
         return (len(text.split()) == (amount))
+    '''
+    The function return a list of supported geom types
+    '''
     @staticmethod
     def geomTypes():
         geom_list = []
         for key in Utils.geom_type_dic:
             geom_list.append(key)
         return geom_list
+    '''
+    The function returns the dimesnion of fromto for the given geom_type
+    '''
     @staticmethod
     def geomTypeDimension(geom_type):
         geom_type = str(geom_type).lower()
         if geom_type in Utils.geom_type_dic:
             return Utils.geom_type_dic[geom_type]
         return -1
+    '''
+    The function gets a file path to and creates a WorldBody objects for this file
+    '''
     @staticmethod
     def parseTxtToPBA(file_name):
         index = 0
@@ -525,3 +571,16 @@ class Utils:
                 exit(0)
 
         return w
+    '''
+    merge two strings with a equal char ('=') between them
+    '''
+    @staticmethod
+    def fix_attr(name,value):
+        return str(name) + '="' + str(value) + '" '
+    '''
+    return the path to the stadium.sdf  file for simulation environment
+    '''
+    @staticmethod
+    def getDefaultSDF():
+        import sys
+        return sys.prefix + "\\Lib\\site-packages\\pybullet_data\\stadium.sdf"
