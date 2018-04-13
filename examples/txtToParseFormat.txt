@@ -1,0 +1,20 @@
+# text format:
+# name, pos, fromto, size, geom_type, joint_max_velocity, joint_axis, joint_range, joint_gear
+
+torso, 0 0 2, 0 0 0, 0.25, sphere, 1, 0 0 0, 0 0, 0
+
+    front_left_leg, 0 0 0, 0 0 0 0.2 0.2 0, 0.08, capsule, 1, 0 0 0, 0 0, 0
+        hip_1, 0.2 0.2 0, 0 0 0 0.2 0.2 0, 0.08, capsule, 1, 0 0 1, -30 30, 150
+            ankle_1, 0.2 0.2 0, 0 0 0 0.4 0.4 0, 0.08, capsule, 1, -1 1 0, 30 70, 150
+
+    front_right_leg, 0 0 0, 0 0 0 -0.2 0.2 0, 0.08, capsule, 1, 0 0 0, 0 0, 0
+        hip_2, -0.2 0.2 0, 0 0 0 -0.2 0.2 0, 0.08, capsule, 1, 0 0 1, -30 30, 150
+            ankle_2, -0.2 0.2 0, 0 0 0 -0.4 0.4 0, 0.08, capsule, 1, 1 1 0, -70 -30, 150
+    
+    back_leg, 0 0 0, 0 0 0 -0.2 -0.2 0, 0.08, capsule, 1, 0 0 0, 0 0, 0
+        hip_3, -0.2 -0.2 0, 0 0 0 -0.2 -0.2 0, 0.08, capsule, 1, 0 1 0, -50 30, 150
+            ankle_3, -0.2 -0.2 0, 0 0 0 -0.4 -0.4 0, 0.08, capsule, 1, -1 1 0, -70 -30, 150
+
+    right_back_leg, 0 0 0, 0 0 0 0.2 -0.2 0, 0.08, capsule, 1, 0 0 0, 0 0, 0
+        hip_4, 0.2 -0.2 0, 0 0 0 0.2 -0.2 0, 0.08, capsule, 1, 0 0 1, -30 30, 150
+            ankle_4, 0.2 -0.2 0, 0 0 0 0.4 -0.4 0, 0.08, capsule, 1, 1 1 0, 30 70, 150
