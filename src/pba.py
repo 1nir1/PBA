@@ -46,8 +46,10 @@ class Robot_Module:
         self.jointSteps = {}
         # Dictionary that holds the joints range
         self.jRanges = {}
-        # Dicrinary that holds the joints max velocity
+        # Dictionary that holds the joints max velocity
         self.jMaxVelocity = {}
+        # Build state - may continue while there are no errors
+        self.hasError = False
 
     '''
     Iterates over all the created objects (bodies, geoms and joints) and returns the object
@@ -75,7 +77,8 @@ class Robot_Module:
     '''
     def addBody(self, name, pos, parent=-1):
         if not Utils.dimensionAmount(pos, 3):
-            print ("Position dimesntion is not 3")
+            print ("Position dimension shall be 3")
+            self.hasError = True
             return False
         if self._verifyName(name):
             tmp = _Body(name,pos,parent)
@@ -87,23 +90,22 @@ class Robot_Module:
     Adds object of type 'joint' to the xml
     '''
     def addJoint(self, name, max_velocity, axis, joint_range, gear, parent=-1):
-        hasError = False
         if not Utils.dimensionAmount(max_velocity, 1):
-            print (name + "- Max velocity dimension is not 1")
-            hasError = True
+            print (name + "- Max velocity dimension shall be 1")
+            self.hasError = True
         if not Utils.dimensionAmount(axis, 3):
-            print (name + "- Axis dimension is not 3")
-            hasError = True
+            print (name + "- Axis dimension shall be 3")
+            self.hasError = True
         if not Utils.dimensionAmount(joint_range, 2):
-            print (name + "- Joint range is not 2 dimension")
-            hasError = True
+            print (name + "- Joint range shall be 2 dimension")
+            self.hasError = True
         if not Utils.dimensionAmount(gear, 1):
-            print (name + "- Joint gear is not 1 dimension")
-            hasError = True
+            print (name + "- Joint gear shall be 1 dimension")
+            self.hasError = True
         if axis == "0 0 0":
             return True
         
-        if hasError:
+        if self.hasError:
             return False
 
         if self._verifyName(name):
@@ -117,18 +119,17 @@ class Robot_Module:
     Adds object of type 'geom' to the xml
     '''
     def addGeom(self, name, fromto, size, geom_type, parent=-1):
-        hasError = False
         geom_type = str(geom_type).lower()
         if not geom_type in Utils.geomTypes():
             print (name + "- Geom type is not valid. Look at Utils.geomTypes()")
-            hasError = True
-        if not Utils.dimensionAmount(fromto, Utils.geomTypeDimension(geom_type)):
-            print (name + "- Geom type require another fromto dimenstion. Look at Utils.geomTypeDimension()")
-            hasError = True
-        if not Utils.dimensionAmount(size, 1):
-            print (name + "- size is one dimension")
-            hasError = True
-        if hasError:
+            self.hasError = True
+        if not Utils.dimensionAmount(fromto, Utils.geomTypeFromToDimension(geom_type)):
+            print (name + "- Geom type require different fromto dimension. Look at Utils.geomTypeFromToDimension()")
+            self.hasError = True
+        if not Utils.dimensionAmount(size, Utils.geomTypeSizeDimension(geom_type)):
+            print (name + "- Geom type require different size dimension. Look at Utils.geomTypeSizeDimension()")
+            self.hasError = True
+        if self.hasError:
             return False
         
         if self._verifyName(name):
@@ -140,6 +141,9 @@ class Robot_Module:
     Starts the pybullet physics run - creates the XML and loads it.
     '''
     def startRun(self, filePath = None, sdfPath = None, gravity = (0,0,-9.8), visual = True):
+        if self.hasError:
+            print ("Error occured during build - can't start with the existing Robot_Module")
+            return
         if filePath is None:
             print ("Filepath is required")
             return
@@ -246,7 +250,7 @@ class Robot_Module:
     '''
     def getJoinState(self, name):
         if not name in self.jdict:
-            print ("Name is not valid")
+            print ("getJoinState - Name is not valid")
             return
         jointState = p.getJointState(self.robot, self.jdict[name])
         return jointState[0]
@@ -304,6 +308,7 @@ class Robot_Module:
             point = self._findByName(self.WB.children,parent)
             if point is None:
                 print("No parent is found")
+                self.hasError = True
                 return
             point.children.append(obj)
 
@@ -482,7 +487,9 @@ class _Geom(_WorldBody):
 
 class Utils:
     # All the supported geom types and thier fromto dimension
-    geom_type_dic = { "capsule":6, "box":3, "sphere": 3, "cylinder": 6 }
+    geom_type_fromto_dic = { "capsule":6, "box":0, "sphere": 0, "cylinder": 6 }
+    # All the supported geom types and thier size dimension
+    geom_type_size_dic = { "capsule":1, "box":3, "sphere": 1, "cylinder": 1 }
 
     '''
     The function return True if the given text is empty or Null, otherwise it returns False
@@ -504,17 +511,26 @@ class Utils:
     @staticmethod
     def geomTypes():
         geom_list = []
-        for key in Utils.geom_type_dic:
+        for key in Utils.geom_type_fromto_dic:
             geom_list.append(key)
         return geom_list
     '''
     The function returns the dimesnion of fromto for the given geom_type
     '''
     @staticmethod
-    def geomTypeDimension(geom_type):
+    def geomTypeFromToDimension(geom_type):
         geom_type = str(geom_type).lower()
-        if geom_type in Utils.geom_type_dic:
-            return Utils.geom_type_dic[geom_type]
+        if geom_type in Utils.geom_type_fromto_dic:
+            return Utils.geom_type_fromto_dic[geom_type]
+        return -1
+    '''
+    The function returns the dimesnion of size for the given geom_type
+    '''
+    @staticmethod
+    def geomTypeSizeDimension(geom_type):
+        geom_type = str(geom_type).lower()
+        if geom_type in Utils.geom_type_size_dic:
+            return Utils.geom_type_size_dic[geom_type]
         return -1
     '''
     The function gets a file path to and creates a WorldBody objects for this file
