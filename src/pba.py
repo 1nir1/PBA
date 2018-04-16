@@ -286,7 +286,7 @@ class Robot_Module:
     def stopRun(self):
         t2 = time.time()
         print ("FPS = ", 1000/ (t2 - self.startTime))
-        print ("Total time in seconds: " + str((t2 - self.startTime).total_seconds()))
+        print ("Total time in seconds: " + str((t2 - self.startTime)))
         print ("Frame amount = " + str(self.frame))
     '''
     Prints the XML structure.
