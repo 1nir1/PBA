@@ -1,7 +1,7 @@
 # text format:
 # name, pos, fromto, size, geom_type, joint_max_velocity, joint_axis, joint_range, joint_gear
 
-torso, 0 0 2, 0 0 0, 0.25, sphere, 1, 0 0 0, 0 0, 0
+torso, 0 0 2, , 0.25, sphere, 1, 0 0 0, 0 0, 0
 
     front_left_leg, 0 0 0, 0 0 0 0.2 0.2 0, 0.08, capsule, 1, 0 0 0, 0 0, 0
         hip_1, 0.2 0.2 0, 0 0 0 0.2 0.2 0, 0.08, capsule, 1, 0 0 1, -30 30, 150
