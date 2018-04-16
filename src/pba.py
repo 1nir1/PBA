@@ -5,6 +5,7 @@ import pybullet as p
 import time
 import math
 import os
+import pybullet_data
 
 '''
 Default units:
@@ -140,18 +141,16 @@ class Robot_Module:
     '''
     Starts the pybullet physics run - creates the XML and loads it.
     '''
-    def startRun(self, filePath = None, sdfPath = None, gravity = (0,0,-9.8), visual = True):
+    def startRun(self, filePath = None, areaPath = None, gravity = (0,0,-9.8), visual = True):
         if self.hasError:
             print ("Error occured during build - can't start with the existing Robot_Module")
-            return
+            return False
         if filePath is None:
             print ("Filepath is required")
-            return
-        if sdfPath is None:
-            sdfPath = Utils.getDefaultSDF()
+            return False
         if len(gravity) != 3:
             print ("Gravity must be 3 dimension")
-            return
+            return False
         
         self.finishBuild = True
         self.WB.prettyPrint(filePath)
@@ -163,10 +162,25 @@ class Robot_Module:
             else:
                 cid = p.connect(p.DIRECT)
 
+        
+        p.setAdditionalSearchPath(pybullet_data.getDataPath())    
+        loaded = False
+
+        if not areaPath is None:
+            filename, file_extension = os.path.splitext(str(areaPath))
+            if file_extension.lower() == ".urdf":
+                loaded = True
+                p.loadURDF(str(areaPath))
+            if file_extension.lower() == ".sdf":
+                loaded = True
+                p.loadSDF(str(areaPath))
+        
+        if loaded == False:
+            p.loadURDF("plane.urdf")
+
         p.setGravity(gravity[0], gravity[1], gravity[2])
         p.setPhysicsEngineParameter(fixedTimeStep=1.0/60., numSolverIterations=5, numSubSteps=2)
 
-        p.loadSDF(sdfPath)
         objs = p.loadMJCF(filePath + ".xml" , flags = p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
 
         self.robot  = objs[0]
@@ -191,6 +205,7 @@ class Robot_Module:
         self.startTime = time.time()
         self.jointSteps = {}
         self.startPosition, (qx, qy, qz, qw) = p.getBasePositionAndOrientation(self.robot)
+        return True
     '''
     Adds the action of: 
         Move joint named @name@ by the angle @target_angle@ with the velocity @angular_velocity@
@@ -593,10 +608,3 @@ class Utils:
     @staticmethod
     def fix_attr(name,value):
         return str(name) + '="' + str(value) + '" '
-    '''
-    return the path to the stadium.sdf  file for simulation environment
-    '''
-    @staticmethod
-    def getDefaultSDF():
-        import sys
-        return sys.prefix + "\\Lib\\site-packages\\pybullet_data\\stadium.sdf"
