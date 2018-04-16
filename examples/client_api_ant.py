@@ -12,7 +12,7 @@ def buildAnt():
 
     # Main body
     w.addBody("torso","0 0 2")
-    w.addGeom("torso_geom","0 0 0","0.25","sphere")
+    w.addGeom("torso_geom","","0.25","sphere")
  
     # Front left leg
     w.addBody("front_left_leg","0 0 0","torso")
@@ -60,8 +60,9 @@ def buildAnt():
 Example of basic ANT module movement given a built Robot_Module 'w'
 '''
 def moveAnt(w):
-    w.startRun('our_ant') # default visual = True => visual simulation will appear
-
+    ans = w.startRun('our_ant') # default visual = True => visual simulation will appear
+    if ans == False:
+            return
     angular_velocity = 1
     place = math.pi / 4
 

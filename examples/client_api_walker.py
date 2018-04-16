@@ -46,7 +46,9 @@ def buildWalker():
 Example of basic WALKER module movement given a built Robot_Module 'w'
 '''
 def walkOurWalker(w):
-    w.startRun('our_walker', visual=False) # visual = False => only console.
+    ans = w.startRun('our_walker', visual=False) # visual = False => only console.
+    if ans == False:
+        return
     for _ in range(1000):
         half = 40
         deg = 30

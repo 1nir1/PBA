@@ -517,8 +517,6 @@ class Utils:
     '''
     @staticmethod
     def dimensionAmount(text, amount):
-        if Utils.stringIsNullOrEmpty(text):
-            return False
         return (len(text.split()) == (amount))
     '''
     The function return a list of supported geom types
