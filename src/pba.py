@@ -263,9 +263,9 @@ class Robot_Module:
     '''
     the function returns the position value of the given joint
     '''
-    def getJoinState(self, name):
+    def getJointState(self, name):
         if not name in self.jdict:
-            print ("getJoinState - Name is not valid")
+            print ("getJointState - Name is not valid")
             return
         jointState = p.getJointState(self.robot, self.jdict[name])
         return jointState[0]
@@ -506,12 +506,6 @@ class Utils:
     # All the supported geom types and thier size dimension
     geom_type_size_dic = { "capsule":1, "box":3, "sphere": 1, "cylinder": 1 }
 
-    '''
-    The function return True if the given text is empty or Null, otherwise it returns False
-    '''
-    @staticmethod
-    def stringIsNullOrEmpty(text):
-        return text is None or text == ""
     '''
     The function return True if the split array with blankspace length equals to amount
     '''
