@@ -18,40 +18,40 @@ def buildAnt():
     w.addBody("front_left_leg","0 0 0","torso")
     w.addGeom("aux_1_geom","0.0 0.0 0.0 0.2 0.2 0","0.08","capsule")
     w.addBody("aux_1","0.2 0.2 0")
-    w.addJoint("hip_1","0 0 0","0 0 1","-30 30","150")
+    w.addJoint("hip_1","1","0 0 1","-30 30","150")
     w.addGeom("left_leg_geom","0 0 0 0.2 0.2 0","0.08","capsule")
     w.addBody("mid1","0.2 0.2 0")
-    w.addJoint("ankle_1","0 0 0","-1 1 0","30 70","150")
+    w.addJoint("ankle_1","1","-1 1 0","30 70","150")
     w.addGeom("left_ankle_geom","0 0 0 0.4 0.4 0","0.08","capsule")
 
     # Front right leg
     w.addBody("front_right_leg","0 0 0","torso")
     w.addGeom("aux_2_geom","0.0 0.0 0.0 -0.2 0.2 0","0.08","capsule")
     w.addBody("aux_2","-0.2 0.2 0")
-    w.addJoint("hip_2","0 0 0","0 0 1","-30 30","150")
+    w.addJoint("hip_2","1","0 0 1","-30 30","150")
     w.addGeom("right_leg_geom","0 0 0 -0.2 0.2 0","0.08","capsule")
     w.addBody("mid2","-0.2 0.2 0")
-    w.addJoint("ankle_2","0 0 0","1 1 0","-70 -30","150")
+    w.addJoint("ankle_2","1","1 1 0","-70 -30","150")
     w.addGeom("right_ankle_geom","0 0 0 -0.4 0.4 0","0.08","capsule")
 
     # Left back leg
     w.addBody("back_leg","0 0 0","torso")
     w.addGeom("aux_3_geom","0.0 0.0 0.0 -0.2 -0.2 0","0.08","capsule")
     w.addBody("aux_3","-0.2 -0.2 0")
-    w.addJoint("hip_3","0 0 0","0 0 1","-30 30","150")
+    w.addJoint("hip_3","1","0 0 1","-30 30","150")
     w.addGeom("back_leg_geom","0 0 0 -0.2 -0.2 0","0.08","capsule")
     w.addBody("mid3","-0.2 -0.2 0")
-    w.addJoint("ankle_3","0 0 0","-1 1 0","-70 -30","150")
+    w.addJoint("ankle_3","1","-1 1 0","-70 -30","150")
     w.addGeom("third_ankle_geom","0 0 0 -0.4 -0.4 0","0.08","capsule")
 
     # Right back leg
     w.addBody("right_back_leg","0 0 0","torso")
     w.addGeom("aux_4_geom","0.0 0.0 0.0 0.2 -0.2 0","0.08","capsule")
     w.addBody("aux_4","0.2 -0.2 0")
-    w.addJoint("hip_4","0 0 0","0 0 1","-30 30","150")
+    w.addJoint("hip_4","1","0 0 1","-30 30","150")
     w.addGeom("right_back_leg_geom","0 0 0 0.2 -0.2 0","0.08","capsule")
     w.addBody("mid4","0.2 -0.2 0")
-    w.addJoint("ankle_4","0 0 0","1 1 0","30 70","150")
+    w.addJoint("ankle_4","1","1 1 0","30 70","150")
     w.addGeom("fourth_ankle_geom","0 0 0 0.4 -0.4 0","0.08","capsule")
 
     return w
@@ -62,7 +62,7 @@ Example of basic ANT module movement given a built Robot_Module 'w'
 def moveAnt(w):
     w.startRun('our_ant') # default visual = True => visual simulation will appear
 
-    angular_velocity = 0.1
+    angular_velocity = 1
     place = math.pi / 4
 
     # Let the robot fall down - affected only by gravity.
