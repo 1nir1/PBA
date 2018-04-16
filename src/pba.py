@@ -214,7 +214,7 @@ class Robot_Module:
     def moveJoint(self, name, target_angle, angular_velocity = 1):
         if not name in self.jdict:
             print ("Name is not valid")
-            return
+            return False
 
         limits = self.jRanges[name].split()
         if target_angle < int(limits[0]):
@@ -233,6 +233,7 @@ class Robot_Module:
                                 targetPosition=math.radians(target_angle),
                                 maxVelocity=angular_velocity
                                 )
+        return True
     '''
     Runs the simulation by a single step (preforms the actions added to the simulation
     action list. Important note: many times a single step isn't enough to generate the entire
