@@ -62,7 +62,7 @@ Example of basic ANT module movement given a built Robot_Module 'w'
 def moveAnt(w):
     ans = w.startRun('our_ant') # default visual = True => visual simulation will appear
     if ans == False:
-            return
+        return
     angular_velocity = 1
     place = math.pi / 4
 
@@ -120,7 +120,7 @@ def moveAnt(w):
 
     # makeStep returns a list of joint that didn't finish the requested move yet - when the list is empty - finish the run.
     while len(w.makeStep()) != 0:
-        continue
+        pass
     
     print("End movement")
     w.stopRun()
