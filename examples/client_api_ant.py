@@ -74,8 +74,6 @@ def moveAnt(w):
     print("Stand up")
     for j in [1, 4, 2, 3]:
         for i in range(1):
-            if i == 1:
-                print(str(j))
             angle = 50
             if j == 2 or j == 3:
                 angle = -angle
@@ -86,8 +84,6 @@ def moveAnt(w):
     print ("Start movement")
     for j in [1, 4, 2, 3]:
         for i in range(100):
-            if i == 1:
-                print(str(j))
             angle = 30
             if j == 2 or j == 3:
                 angle = -70
@@ -97,21 +93,15 @@ def moveAnt(w):
     time.sleep(2)
 
     for i in range(100):
-        if i == 1:
-            print("2")
         w.moveJoint("ankle_3", place, angular_velocity)
         w.makeStep()
         w.moveJoint("ankle_4", place, angular_velocity)
         w.makeStep()
     
     for i in range(100):
-        if i == 1:
-            print("3")
         w.makeStep()
    
     for i in range(100):
-        if i == 1:
-            print("4")
         w.moveJoint("ankle_3", -place*2, angular_velocity)
         w.moveJoint("ankle_4", -place*2, angular_velocity)
         w.moveJoint("ankle_1", place*1.5, angular_velocity)
