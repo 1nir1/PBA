@@ -141,7 +141,7 @@ class Robot_Module:
     '''
     Starts the pybullet physics run - creates the XML and loads it.
     '''
-    def startRun(self, filePath = None, areaPath = None, gravity = (0,0,-9.8), visual = True):
+    def startRun(self, filePath = None, areaPath = None, gravity = (0,0,-9.8), visual = True, timeStepDuration = 1.0 / 60.):
         if self.hasError:
             print ("Error occured during build - can't start with the existing Robot_Module")
             return False
@@ -179,7 +179,7 @@ class Robot_Module:
             p.loadURDF("plane.urdf")
 
         p.setGravity(gravity[0], gravity[1], gravity[2])
-        p.setPhysicsEngineParameter(fixedTimeStep=1.0/60., numSolverIterations=5, numSubSteps=2)
+        p.setPhysicsEngineParameter(fixedTimeStep=timeStepDuration, numSolverIterations=5, numSubSteps=2)
 
         objs = p.loadMJCF(filePath + ".xml" , flags = p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
 
@@ -241,7 +241,6 @@ class Robot_Module:
     '''
     def makeStep(self, cameraDistance = -1, cameraYaw = 0, cameraPitch = -20):
         p.stepSimulation()
-        time.sleep(0.01)
         self.frame += 1
 
         epsilon = 0.2
@@ -286,7 +285,7 @@ class Robot_Module:
     '''
     def stopRun(self):
         t2 = time.time()
-        print ("FPS = ", 1000/ (t2 - self.startTime))
+        print ("FPS = ", self.frame / (t2 - self.startTime))
         print ("Total time in seconds: " + str((t2 - self.startTime)))
         print ("Frame amount = " + str(self.frame))
     '''
